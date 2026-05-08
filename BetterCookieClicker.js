@@ -16,23 +16,6 @@
             upgradeInt: null
         };
 
-        // (YOUR ENTIRE GUI CODE GOES HERE UNCHANGED)
-
-    }
-
-    // ================= SAFE HOOK =================
-    if (Game && Game.ready) {
-        init();
-    } else {
-        if (Game.registerHook) {
-            Game.registerHook("onLoad", init);
-        } else {
-            setTimeout(init, 1000);
-        }
-    }
-
-})();
-
         // ================= GUI =================
         const gui = document.createElement("div");
         gui.style.position = "fixed";
@@ -81,14 +64,12 @@
             btn.onclick = () => {
                 ccGUI[key] = !ccGUI[key];
 
-                // ================= AUTO CLICK =================
                 if (key === "autoClick") {
                     if (ccGUI.autoClick) {
                         ccGUI.clickInt = setInterval(() => Game.ClickCookie(), 10);
                     } else clearInterval(ccGUI.clickInt);
                 }
 
-                // ================= GOLDEN =================
                 if (key === "autoGolden") {
                     if (ccGUI.autoGolden) {
                         ccGUI.goldenInt = setInterval(() => {
@@ -99,14 +80,12 @@
                     } else clearInterval(ccGUI.goldenInt);
                 }
 
-                // ================= AUTO BUY =================
                 if (key === "autoBest") {
                     if (ccGUI.autoBest) {
                         ccGUI.bestInt = setInterval(runAI, 800);
                     } else clearInterval(ccGUI.bestInt);
                 }
 
-                // ================= AUTO UPGRADE =================
                 if (key === "autoUpgrade") {
                     if (ccGUI.autoUpgrade) {
                         ccGUI.upgradeInt = setInterval(() => {
@@ -161,7 +140,7 @@
 
         close.onclick = () => ccGUI.cleanup();
 
-        // ================= RANDOM BUY (CAPPED BUILDINGS ONLY) =================
+        // ================= RANDOM BUY =================
         function runAI() {
 
             const money = Game.cookies;
@@ -178,7 +157,6 @@
 
             let options = [];
 
-            // BUILDINGS ONLY (NO UPGRADES)
             for (let n in Game.Objects) {
                 let obj = Game.Objects[n];
 
@@ -205,6 +183,15 @@
             gui.remove();
             delete window.ccGUI;
         };
-
     }
-});
+
+    // ================= PROPER COOKIE CLICKER LOAD HOOK =================
+    if (Game && Game.ready) {
+        init();
+    } else if (Game.registerHook) {
+        Game.registerHook("onLoad", init);
+    } else {
+        setTimeout(init, 1000);
+    }
+
+})();
