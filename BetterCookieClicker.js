@@ -1,6 +1,8 @@
-(function () {
+Game.registerMod("BetterCookieClicker", {
 
-    function init() {
+    init: function () {
+
+        Game.Notify("BetterCookieClicker", "Loaded successfully", [16, 5], 5);
 
         if (window.ccGUI && ccGUI.cleanup) ccGUI.cleanup();
 
@@ -16,7 +18,7 @@
             upgradeInt: null
         };
 
-        // ================= GUI =================
+        // ============ GUI ============
         const gui = document.createElement("div");
         gui.style.position = "fixed";
         gui.style.top = "120px";
@@ -65,29 +67,27 @@
                 ccGUI[key] = !ccGUI[key];
 
                 if (key === "autoClick") {
-                    if (ccGUI.autoClick) {
+                    if (ccGUI.autoClick)
                         ccGUI.clickInt = setInterval(() => Game.ClickCookie(), 10);
-                    } else clearInterval(ccGUI.clickInt);
+                    else clearInterval(ccGUI.clickInt);
                 }
 
                 if (key === "autoGolden") {
-                    if (ccGUI.autoGolden) {
+                    if (ccGUI.autoGolden)
                         ccGUI.goldenInt = setInterval(() => {
-                            for (let s of Game.shimmers) {
-                                if (s.type === "golden") s.pop();
-                            }
+                            for (let s of Game.shimmers) if (s.type === "golden") s.pop();
                         }, 500);
-                    } else clearInterval(ccGUI.goldenInt);
+                    else clearInterval(ccGUI.goldenInt);
                 }
 
                 if (key === "autoBest") {
-                    if (ccGUI.autoBest) {
+                    if (ccGUI.autoBest)
                         ccGUI.bestInt = setInterval(runAI, 800);
-                    } else clearInterval(ccGUI.bestInt);
+                    else clearInterval(ccGUI.bestInt);
                 }
 
                 if (key === "autoUpgrade") {
-                    if (ccGUI.autoUpgrade) {
+                    if (ccGUI.autoUpgrade)
                         ccGUI.upgradeInt = setInterval(() => {
                             for (let u of Game.UpgradesInStore) {
                                 if (u.getPrice() <= Game.cookies) {
@@ -96,7 +96,7 @@
                                 }
                             }
                         }, 1000);
-                    } else clearInterval(ccGUI.upgradeInt);
+                    else clearInterval(ccGUI.upgradeInt);
                 }
 
                 update();
@@ -108,22 +108,15 @@
 
         toggle("Auto Click", "autoClick");
         toggle("Auto Golden", "autoGolden");
-        toggle("Auto Buy (Random)", "autoBest");
+        toggle("Auto Buy", "autoBest");
         toggle("Auto Upgrade", "autoUpgrade");
 
         document.body.appendChild(gui);
 
-        // ================= ; TOGGLE =================
-        document.addEventListener("keydown", (e) => {
-            if (e.key === ";") {
-                gui.style.display = gui.style.display === "none" ? "block" : "none";
-            }
-        });
-
-        // ================= DRAG =================
+        // ============ DRAG ============
         let drag = false, ox = 0, oy = 0;
 
-        title.onmousedown = (e) => {
+        title.onmousedown = e => {
             drag = true;
             ox = e.clientX - gui.offsetLeft;
             oy = e.clientY - gui.offsetTop;
@@ -131,7 +124,7 @@
 
         document.onmouseup = () => drag = false;
 
-        document.onmousemove = (e) => {
+        document.onmousemove = e => {
             if (drag) {
                 gui.style.left = (e.clientX - ox) + "px";
                 gui.style.top = (e.clientY - oy) + "px";
@@ -140,58 +133,51 @@
 
         close.onclick = () => ccGUI.cleanup();
 
-        // ================= RANDOM BUY =================
+        // ============ RANDOM BUY ============
         function runAI() {
 
             const money = Game.cookies;
             const cps = Game.cookiesPs;
 
-            let zeros = Math.floor(Math.log10(cps + 1));
-            let capValue = 20 + zeros * 10;
-            capValue = Math.min(capValue, 120);
-
             let caps = {};
-            for (let n in Game.Objects) {
-                caps[n] = capValue;
-            }
+            let zeros = Math.floor(Math.log10(cps + 1));
+            let cap = Math.min(20 + zeros * 10, 120);
+
+            for (let n in Game.Objects) caps[n] = cap;
 
             let options = [];
 
             for (let n in Game.Objects) {
                 let obj = Game.Objects[n];
-
                 let price = obj.bulkPrice || obj.getPrice();
-                if (price > money) continue;
 
-                if (obj.amount >= caps[n]) continue;
-
-                options.push(obj);
+                if (price <= money && obj.amount < caps[n]) {
+                    options.push(obj);
+                }
             }
 
             if (!options.length) return;
 
-            let pick = options[Math.floor(Math.random() * options.length)];
-            pick.buy();
+            options[Math.floor(Math.random() * options.length)].buy();
         }
 
-        // ================= CLEANUP =================
+        // ============ CLEANUP ============
         ccGUI.cleanup = () => {
             clearInterval(ccGUI.clickInt);
             clearInterval(ccGUI.goldenInt);
             clearInterval(ccGUI.bestInt);
             clearInterval(ccGUI.upgradeInt);
             gui.remove();
-            delete window.ccGUI;
         };
+
+    },
+
+    save: function () {
+        return "";
+    },
+
+    load: function (str) {
+        return true;
     }
 
-    // ================= PROPER COOKIE CLICKER LOAD HOOK =================
-    if (Game && Game.ready) {
-        init();
-    } else if (Game.registerHook) {
-        Game.registerHook("onLoad", init);
-    } else {
-        setTimeout(init, 1000);
-    }
-
-})();
+});
