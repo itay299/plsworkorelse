@@ -1,5 +1,6 @@
-Game.registerMod("BetterCookieClicker", {
-    init: function () {
+(function () {
+
+    function init() {
 
         if (window.ccGUI && ccGUI.cleanup) ccGUI.cleanup();
 
@@ -14,6 +15,23 @@ Game.registerMod("BetterCookieClicker", {
             bestInt: null,
             upgradeInt: null
         };
+
+        // (YOUR ENTIRE GUI CODE GOES HERE UNCHANGED)
+
+    }
+
+    // ================= SAFE HOOK =================
+    if (Game && Game.ready) {
+        init();
+    } else {
+        if (Game.registerHook) {
+            Game.registerHook("onLoad", init);
+        } else {
+            setTimeout(init, 1000);
+        }
+    }
+
+})();
 
         // ================= GUI =================
         const gui = document.createElement("div");
