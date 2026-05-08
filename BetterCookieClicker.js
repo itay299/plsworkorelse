@@ -141,7 +141,7 @@ Game.registerMod("BetterCookieClicker", {
             }
         };
 
-        close.onclick = () => ccGUI.cleanup;
+        close.onclick = () => ccGUI.cleanup();
 
         // ================= RANDOM BUY (CAPPED BUILDINGS ONLY) =================
         function runAI() {
