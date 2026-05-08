@@ -65,6 +65,7 @@ Game.registerMod("BetterCookieClicker", {
             content.style.padding = "10px";
             gui.appendChild(content);
 
+            // ================= TOGGLES =================
             function toggle(name, key) {
                 const btn = document.createElement("button");
 
@@ -129,8 +130,32 @@ Game.registerMod("BetterCookieClicker", {
             toggle("Auto Upgrade", "autoUpgrade");
 
             document.body.appendChild(gui);
+
+            // ================= CLOSE FIX =================
+            close.onclick = () => {
+                gui.style.display = "none";
+            };
+
+            // ================= DRAG FIX =================
+            let drag = false, ox = 0, oy = 0;
+
+            title.onmousedown = (e) => {
+                drag = true;
+                ox = e.clientX - gui.offsetLeft;
+                oy = e.clientY - gui.offsetTop;
+            };
+
+            document.onmouseup = () => drag = false;
+
+            document.onmousemove = (e) => {
+                if (drag) {
+                    gui.style.left = (e.clientX - ox) + "px";
+                    gui.style.top = (e.clientY - oy) + "px";
+                }
+            };
         }
 
+        // ================= RANDOM BUY =================
         function runAI() {
 
             const money = Game.cookies;
